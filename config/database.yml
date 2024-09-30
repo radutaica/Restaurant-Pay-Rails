@@ -24,6 +24,10 @@ default: &default
 development:
   <<: *default
   database: restaurant_pay_rails_development
+  username: restaurant_pay_rails
+  password: admin
+  host: localhost
+  port: 5432
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -79,6 +83,7 @@ test:
 # Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
 # for a full overview on how database connection configuration can be specified.
 #
+
 production:
   <<: *default
   database: restaurant_pay_rails_production
