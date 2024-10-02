@@ -1,3 +1,14 @@
 class Users::PaymentsController < ApplicationController
-  # Controller actions (index, show, create, etc.) go here
+  def create_payment
+    amount = params[:amount].to_i * 100
+
+    payment_intent = Stripe::PaymentIntent.create({
+      amount: amount,
+      currency: 'usd',
+    })
+
+    render json: { client_secret: payment_intent.client_secret }
+  rescue Stripe::StripeError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
 end
