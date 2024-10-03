@@ -1,4 +1,5 @@
 class Users::PaymentsController < ApplicationController
+  skip_before_action :verify_authenticity_token
   def create_payment
     amount = params[:amount].to_i * 100
 
