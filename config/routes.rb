@@ -11,5 +11,6 @@ Rails.application.routes.draw do
   namespace :users do
     #PAYMENTS
     post 'payment/create_payment' => 'payments#create_payment'
+    post 'payment/pay_bill' => 'payments#pay_bill'
   end
 end
