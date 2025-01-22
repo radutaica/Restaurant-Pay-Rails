@@ -1,10 +1,10 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
-  config.hosts << "308c-82-78-185-115.ngrok-free.app"
+  config.hosts << "0929-82-78-185-115.ngrok-free.app"
   # Settings specified here will take precedence over those in config/application.rb.
   Rails.application.routes.default_url_options = {
-    host: 'https://308c-82-78-185-115.ngrok-free.app'
+    host: 'https://0929-82-78-185-115.ngrok-free.app'
   }
   # Settings specified here will take precedence over those in config/application.rb.
 

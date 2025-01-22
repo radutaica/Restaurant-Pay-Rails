@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     sessions: 'users/sessions',
     registrations: 'users/registrations',
   }, defaults: { format: :json }
+  resources :webhooks
   namespace :users do
     #PAYMENTS
     post 'payment/create_payment' => 'payments#create_payment'
