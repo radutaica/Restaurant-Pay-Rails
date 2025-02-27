@@ -1,6 +1,11 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  config.hosts << "0929-82-78-185-115.ngrok-free.app"
+  # Settings specified here will take precedence over those in config/application.rb.
+  Rails.application.routes.default_url_options = {
+    host: 'https://0929-82-78-185-115.ngrok-free.app'
+  }
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded any time
@@ -29,6 +34,7 @@ Rails.application.configure do
 
     config.cache_store = :null_store
   end
+  config.action_controller.forgery_protection_origin_check = false
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
