@@ -1,10 +1,14 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
-  config.hosts << "308c-82-78-185-115.ngrok-free.app"
+  # Allow any ngrok subdomain
+  config.hosts << /.*\.ngrok-free\.app/
+  config.hosts << /.*\.ngrok\.io/
+  config.hosts << /.*\.ngrok\.app/
+  
   # Settings specified here will take precedence over those in config/application.rb.
   Rails.application.routes.default_url_options = {
-    host: 'https://308c-82-78-185-115.ngrok-free.app'
+    host: ENV['NGROK_HOST'] || 'localhost:3000'
   }
   # Settings specified here will take precedence over those in config/application.rb.
 
