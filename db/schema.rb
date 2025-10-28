@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_10_27_074511) do
+ActiveRecord::Schema[7.0].define(version: 2025_10_28_074118) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -46,6 +46,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_27_074511) do
     t.integer "remaining_cents", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "venue_id", null: false
     t.index ["table_id"], name: "index_bills_on_table_id"
   end
 
@@ -99,6 +100,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_27_074511) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "price_cents", default: 0, null: false
+    t.bigint "venue_id", null: false
   end
 
   create_table "payments", force: :cascade do |t|
@@ -113,6 +115,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_27_074511) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "venue_id", null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -129,12 +132,26 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_27_074511) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "venues", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.string "address"
+    t.string "currency", default: "ron"
+    t.string "stripe_account_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_venues_on_slug", unique: true
+  end
+
   add_foreign_key "bill_line_items", "bills"
   add_foreign_key "bill_line_items", "items"
   add_foreign_key "bills", "tables"
+  add_foreign_key "bills", "venues"
   add_foreign_key "checkout_sessions", "claims"
   add_foreign_key "claim_units", "bill_line_items"
   add_foreign_key "claim_units", "claims"
   add_foreign_key "claims", "bills"
   add_foreign_key "claims", "users"
+  add_foreign_key "items", "venues"
+  add_foreign_key "tables", "venues"
 end

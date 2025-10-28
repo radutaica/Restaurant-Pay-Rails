@@ -1,3 +1,3 @@
 class Table< ApplicationRecord
-  # Model logic goes here
+  belongs_to :venue
 end
