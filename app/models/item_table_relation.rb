@@ -1,3 +1,4 @@
 class ItemTableRelation < ApplicationRecord
-  # Model logic goes here
+  belongs_to :item
+  belongs_to :table
 end
