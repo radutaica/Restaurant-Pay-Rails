@@ -8,8 +8,10 @@ class Users::PaymentsController < ApplicationController
       return render json: { error: 'Invalid amount' }, status: :bad_request
     end
   
-    amount_in_cents = amount * 100
-    payment = Payment.create(amount: amount, status: 'unpaid')
+    # Convert amount from base currency (RON) to cents
+    # Frontend sends amount in base currency, Stripe requires cents
+    amount_in_cents = amount
+    payment = Payment.create(amount_cents: amount_in_cents, status: 'unpaid')
     payment_intent = Stripe::PaymentIntent.create({
       amount: amount_in_cents,
       currency: 'ron',
@@ -21,6 +23,9 @@ class Users::PaymentsController < ApplicationController
       },
     })
   
+    # Store the payment intent ID in the payment record
+    payment.update(payment_id: payment_intent.id)
+  
     render json: { client_secret: payment_intent.client_secret }
   rescue Stripe::StripeError => e
     puts e.message
@@ -30,7 +35,7 @@ class Users::PaymentsController < ApplicationController
   def pay_bill
 
     payment = Payment.find(params[:payment_id])
-    Stripe::PaymentIntent.capture(payment.payment_intent_id)
+    Stripe::PaymentIntent.capture(payment.payment_id)
     
   end
 

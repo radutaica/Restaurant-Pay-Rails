@@ -39,7 +39,7 @@ gem "rack-cors"
 gem 'devise'
 gem 'devise-jwt'
 gem 'jsonapi-serializer'
-gem 'pry', '~> 0.10.3'
+gem 'pry', '~> 0.14'
 gem 'stripe'
 gem 'rqrcode'
 
