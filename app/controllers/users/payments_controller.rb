@@ -17,7 +17,7 @@ class Users::PaymentsController < ApplicationController
       currency: 'ron',
       payment_method_types: ['card'],
       confirmation_method: 'automatic',
-      capture_method: 'manual',
+      capture_method: 'automatic',
       metadata: {
         order_id: payment.id,
       },
