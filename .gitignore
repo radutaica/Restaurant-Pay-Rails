@@ -27,3 +27,20 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Ignore SSL certificates
+@localhost.key
+localhost.key
+localhost.crt
+*.key
+*.crt
+*.pem
+config/ssl/
+
+# Ignore environment files
+.env
+.env.*
+.envrc
+*.env
+*.env.local
+*.env.*.local
