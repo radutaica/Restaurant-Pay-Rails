@@ -28,19 +28,33 @@ class BillSessionsController < ApplicationController
       end
       
       # Căutăm un Bill deschis pentru masa respectivă
-      active_bill = table.bills.where(status: 'open').first
+      active_bill = table.bills.open.first
       
       # Dacă nu există, creează unul nou
       if active_bill.nil?
         active_bill = create_new_bill(table, venue)
       end
       
-      # Generăm un session_token temporar pentru această sesiune
-      session_token = generate_session_token(active_bill, table, venue)
+      # Creăm sesiune în Redis
+      session_id = QpSessionService.create_session(
+        venue_id: venue.id,
+        table_id: table.id,
+        bill_id: active_bill.id
+      )
+      
+      # Setăm cookie-ul
+      cookies[:qp_session] = {
+        value: session_id,
+        httponly: true,
+        secure: Rails.env.production?,
+        samesite: :Lax,
+        max_age: 900 # 15 minutes
+      }
       
       # Returnează informațiile despre sesiunea creată/găsită
       render json: {
-        session_token: session_token,
+        session_token: session_id,
+        bill_id: active_bill.id,
         bill: {
           id: active_bill.id,
           status: active_bill.status,
@@ -66,7 +80,7 @@ class BillSessionsController < ApplicationController
         },
         session_info: {
           created_at: Time.current,
-          expires_at: 24.hours.from_now
+          expires_at: 15.minutes.from_now
         }
       }
       
@@ -80,27 +94,19 @@ class BillSessionsController < ApplicationController
   
   # Endpoint pentru obținerea informațiilor despre sesiunea curentă
   def show_session
-    session_token = params[:session_token]
-    
-    if session_token.blank?
-      render json: { error: 'Session token is required' }, status: :bad_request
-      return
-    end
-    
-    session_data = decode_session_token(session_token)
-    
-    if session_data.nil?
-      render json: { error: 'Invalid session token' }, status: :unauthorized
+    if !load_session_from_redis
+      render json: { error: 'Invalid or expired session' }, status: :unauthorized
       return
     end
     
     begin
-      bill = Bill.find(session_data[:bill_id])
-      table = Table.find(session_data[:table_id])
-      venue = Venue.find(session_data[:venue_id])
+      bill = Bill.find(@session_data[:bill_id])
+      table = Table.find(@session_data[:table_id])
+      venue = Venue.find(@session_data[:venue_id])
       
       render json: {
-        session_token: session_token,
+        session_token: get_session_id,
+        bill_id: bill.id,
         bill: {
           id: bill.id,
           status: bill.status,
@@ -125,8 +131,8 @@ class BillSessionsController < ApplicationController
           currency: venue.currency
         },
         session_info: {
-          created_at: Time.at(session_data[:created_at]),
-          expires_at: Time.at(session_data[:expires_at])
+          created_at: Time.current,
+          expires_at: Time.at(@session_data[:exp])
         }
       }
       
@@ -166,7 +172,7 @@ class BillSessionsController < ApplicationController
       table: table,
       venue: venue,
       currency: venue.currency,
-      status: 'open',
+      status: :open,
       subtotal_cents: 0,
       tax_cents: 0,
       fees_cents: 0,
@@ -175,25 +181,5 @@ class BillSessionsController < ApplicationController
       paid_cents: 0,
       remaining_cents: 0
     )
-  end
-  
-  def generate_session_token(bill, table, venue)
-    session_data = {
-      bill_id: bill.id,
-      table_id: table.id,
-      venue_id: venue.id,
-      created_at: Time.current.to_i,
-      expires_at: 24.hours.from_now.to_i
-    }
-    
-    JWT.encode(session_data, Rails.application.secret_key_base, 'HS256')
-  end
-  
-  def decode_session_token(token)
-    decoded_token = JWT.decode(token, Rails.application.secret_key_base, true, { algorithm: 'HS256' })
-    decoded_token[0]
-  rescue JWT::DecodeError => e
-    Rails.logger.error "Session token decode error: #{e.message}"
-    nil
   end
 end

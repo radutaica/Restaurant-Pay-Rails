@@ -35,38 +35,9 @@ class Users::ItemTableRelationsController < ApplicationController
   private
 
   def validate_session_token
-    # Check for X-Session-Token header first (as sent by the client)
-    # Rails converts headers, so we check both formats
-    session_token = request.headers['X-Session-Token'] || 
-                    request.headers['HTTP_X_SESSION_TOKEN'] ||
-                    params[:session_token] || 
-                    request.headers['Authorization']&.split(' ')&.last
-    
-    if session_token.blank?
-      return render json: { error: 'Session token is required' }, status: :unauthorized
+    if !load_session_from_redis
+      return render json: { error: 'Invalid or expired session' }, status: :unauthorized
     end
-    
-    @session_data = decode_session_token(session_token)
-    
-    if @session_data.nil?
-      return render json: { error: 'Invalid session token' }, status: :unauthorized
-    end
-    
-    # Check if token has expired
-    if Time.current.to_i > @session_data[:expires_at]
-      return render json: { error: 'Session token has expired' }, status: :unauthorized
-    end
-  end
-
-  def decode_session_token(token)
-    decoded_token = JWT.decode(token, Rails.application.secret_key_base, true, { algorithm: 'HS256' })
-    decoded_token[0].with_indifferent_access
-  rescue JWT::DecodeError => e
-    Rails.logger.error "Session token decode error: #{e.message}"
-    nil
-  rescue JWT::ExpiredSignature => e
-    Rails.logger.error "Session token expired: #{e.message}"
-    nil
   end
 
   def item_table_relation_params
