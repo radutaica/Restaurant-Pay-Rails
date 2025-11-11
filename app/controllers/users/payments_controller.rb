@@ -1,6 +1,17 @@
 class Users::PaymentsController < ApplicationController
   skip_before_action :verify_authenticity_token
+  before_action :load_session_from_redis, only: [:create_payment, :pay_bill]
+
   def create_payment
+    # Verifică dacă sesiunea este validă
+    unless @session_data
+      return render json: { error: 'Invalid or expired session' }, status: :unauthorized
+    end
+
+    # Acum poți accesa venue_id, table_id, bill_id din @session_data
+    venue_id = @session_data[:venue_id]
+    table_id = @session_data[:table_id]
+    bill_id = @session_data[:bill_id]
 
     amount = params[:amount].to_i
   
@@ -20,6 +31,9 @@ class Users::PaymentsController < ApplicationController
       capture_method: 'automatic',
       metadata: {
         order_id: payment.id,
+        venue_id: venue_id,
+        table_id: table_id,
+        bill_id: bill_id,
       },
     })
   

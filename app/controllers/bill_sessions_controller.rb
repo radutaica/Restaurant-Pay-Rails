@@ -168,18 +168,60 @@ class BillSessionsController < ApplicationController
   private
   
   def create_new_bill(table, venue)
-    Bill.create!(
+    # Obținem toate item-urile asociate cu masa
+    items = table.items
+    
+    # Calculăm subtotalul (suma prețurilor tuturor item-urilor)
+    subtotal_cents = items.sum(:price_cents)
+    
+    # Setăm tax_rate_bps și service_fee_bps (poți modifica aceste valori după nevoie)
+    # Basis points: 1 bps = 0.01%, deci 1900 bps = 19% (TVA în România)
+    tax_rate_bps = 1900 # 19% TVA (poți face configurable din venue sau settings)
+    service_fee_bps = 0 # 0% service fee (poți face configurable)
+    
+    # Calculăm tax-ul: subtotal * (tax_rate_bps / 10000)
+    # Exemplu: 10000 cenți * (1900 / 10000) = 10000 * 0.19 = 1900 cenți
+    tax_cents = (subtotal_cents * tax_rate_bps / 10000.0).round
+    
+    # Calculăm service fee-ul: subtotal * (service_fee_bps / 10000)
+    fees_cents = (subtotal_cents * service_fee_bps / 10000.0).round
+    
+    # Tip-ul este 0 la creare (se setează ulterior)
+    tip_cents = 0
+    
+    # Calculăm totalul: subtotal + tax + fees + tip
+    total_cents = subtotal_cents + tax_cents + fees_cents + tip_cents
+    
+    # Creăm bill-ul
+    bill = Bill.create!(
       table: table,
       venue: venue,
       currency: venue.currency,
       status: :open,
-      subtotal_cents: 0,
-      tax_cents: 0,
-      fees_cents: 0,
-      tip_cents: 0,
-      total_cents: 0,
+      tax_rate_bps: tax_rate_bps,
+      service_fee_bps: service_fee_bps,
+      subtotal_cents: subtotal_cents,
+      tax_cents: tax_cents,
+      fees_cents: fees_cents,
+      tip_cents: tip_cents,
+      total_cents: total_cents,
       paid_cents: 0,
-      remaining_cents: 0
+      remaining_cents: total_cents
     )
+    
+    # Creăm bill_line_items pentru fiecare item
+    items.each do |item|
+      BillLineItem.create!(
+        bill: bill,
+        item: item,
+        name: item.name,
+        qty: 1,
+        unit_price_cents: item.price_cents,
+        subtotal_cents: item.price_cents,
+        claimed_qty: 0
+      )
+    end
+    
+    bill
   end
 end
