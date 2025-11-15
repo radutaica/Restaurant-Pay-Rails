@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_10_28_074118) do
+ActiveRecord::Schema[7.0].define(version: 2025_10_29_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -88,6 +88,26 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_28_074118) do
     t.index ["user_id"], name: "index_claims_on_user_id"
   end
 
+  create_table "contributions", force: :cascade do |t|
+    t.bigint "bill_id", null: false
+    t.string "kind", default: "custom", null: false
+    t.integer "requested_amount_cents", default: 0, null: false
+    t.integer "allocated_amount_cents", default: 0, null: false
+    t.integer "tip_cents", default: 0, null: false
+    t.integer "total_charge_cents", default: 0, null: false
+    t.string "currency", default: "ron", null: false
+    t.string "stripe_payment_intent_id"
+    t.string "status", default: "reserved", null: false
+    t.datetime "captured_at"
+    t.string "guest_session_id"
+    t.string "payment_method"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bill_id"], name: "index_contributions_on_bill_id"
+    t.index ["status"], name: "index_contributions_on_status"
+    t.index ["stripe_payment_intent_id"], name: "index_contributions_on_stripe_payment_intent_id"
+  end
+
   create_table "item_table_relations", force: :cascade do |t|
     t.bigint "item_id"
     t.bigint "table_id"
@@ -152,6 +172,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_28_074118) do
   add_foreign_key "claim_units", "claims"
   add_foreign_key "claims", "bills"
   add_foreign_key "claims", "users"
+  add_foreign_key "contributions", "bills"
   add_foreign_key "items", "venues"
   add_foreign_key "tables", "venues"
 end

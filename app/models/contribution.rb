@@ -21,7 +21,7 @@ class Contribution < ApplicationRecord
   validates :tip_cents, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :total_charge_cents, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :currency, presence: true
-  validates :stripe_checkout_session_id, uniqueness: true, allow_nil: true
+  validates :stripe_payment_intent_id, uniqueness: true, allow_nil: true
 
   # Calculate total_charge_cents if not set
   before_validation :calculate_total_charge, if: -> { total_charge_cents.zero? && allocated_amount_cents > 0 }
