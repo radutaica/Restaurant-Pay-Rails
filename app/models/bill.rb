@@ -2,6 +2,7 @@ class Bill < ApplicationRecord
     belongs_to :venue
     belongs_to :table
     has_many :bill_line_items, dependent: :destroy
+    has_many :contributions, dependent: :destroy
 
     # Enum pentru status: 0 = open, 1 = partial, 2 = paid, 3 = void/closed
     # Presupunem că status != 0 înseamnă că bill-ul este închis

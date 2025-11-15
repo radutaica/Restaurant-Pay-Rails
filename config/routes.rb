@@ -9,6 +9,9 @@ Rails.application.routes.draw do
     registrations: 'users/registrations',
   }, defaults: { format: :json }
   
+  # Webhooks
+  post 'webhooks' => 'webhooks#create', as: :webhooks
+  
   # Public endpoints pentru sesiunile de masă
   get 't/:slug' => 'bill_sessions#create_session', as: :create_bill_session
   get 'session/:session_token' => 'bill_sessions#show_session', as: :show_bill_session
