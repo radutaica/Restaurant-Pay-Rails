@@ -59,6 +59,8 @@ class BillSessionsController < ApplicationController
           id: active_bill.id,
           status: active_bill.status,
           subtotal_cents: active_bill.subtotal_cents,
+          remaining_cents: active_bill.remaining_cents,
+          paid_cents: active_bill.paid_cents,
           tax_cents: active_bill.tax_cents,
           fees_cents: active_bill.fees_cents,
           tip_cents: active_bill.tip_cents,

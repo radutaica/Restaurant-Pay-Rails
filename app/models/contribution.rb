@@ -1,26 +1,16 @@
 class Contribution < ApplicationRecord
   belongs_to :bill
 
-  enum kind: {
-    full: 0,
-    equal_split: 1,
-    custom: 2
-  }
-
-  enum status: {
-    reserved: 0,
-    checkout_created: 1,
-    succeeded: 2,
-    failed: 3,
-    canceled: 4,
-    expired: 5
-  }
+  VALID_KINDS = %w[full equal_split custom].freeze
+  VALID_STATUSES = %w[reserved checkout_created succeeded failed canceled expired].freeze
 
   validates :requested_amount_cents, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :allocated_amount_cents, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :tip_cents, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :total_charge_cents, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :currency, presence: true
+  validates :kind, inclusion: { in: VALID_KINDS }, allow_nil: true
+  validates :status, inclusion: { in: VALID_STATUSES }, presence: true
   validates :stripe_payment_intent_id, uniqueness: true, allow_nil: true
 
   # Calculate total_charge_cents if not set

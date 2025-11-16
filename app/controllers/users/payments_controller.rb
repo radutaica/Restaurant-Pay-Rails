@@ -27,7 +27,7 @@ class Users::PaymentsController < ApplicationController
     end
 
     # Validate kind
-    unless Contribution.kinds.keys.include?(kind)
+    unless Contribution::VALID_KINDS.include?(kind)
       return render json: { error: 'Invalid kind. Must be one of: full, equal_split, custom' }, status: :bad_request
     end
 
@@ -40,7 +40,7 @@ class Users::PaymentsController < ApplicationController
       bill = Bill.lock.find(bill_id)
       
       # Calculate remaining = bill.total_cents - SUM(contributions.succeeded)
-      succeeded_total = bill.contributions.where(status: :succeeded).sum(:allocated_amount_cents)
+      succeeded_total = bill.contributions.where(status: 'succeeded').sum(:allocated_amount_cents)
       remaining = bill.total_cents - succeeded_total
 
       if remaining <= 0
@@ -60,7 +60,7 @@ class Users::PaymentsController < ApplicationController
         tip_cents: tip_cents,
         total_charge_cents: total_charge_cents,
         currency: bill.currency || 'ron',
-        status: :reserved,
+        status: 'reserved',
         kind: kind,
         guest_session_id: get_session_id
       )

@@ -35,7 +35,7 @@ class WebhooksController < ApplicationController
       payment_intent = event.data.object
       if payment_intent.metadata.contribution_id.present?
         contribution = Contribution.find(payment_intent.metadata.contribution_id)
-        contribution.update(status: :checkout_created)
+        contribution.update(status: 'checkout_created')
       end
     when 'payment_intent.amount_capturable_updated'
       payment_intent = event.data.object
@@ -47,22 +47,53 @@ class WebhooksController < ApplicationController
       payment_intent = event.data.object
       contribution = Contribution.find_by(stripe_payment_intent_id: payment_intent.id)
       if contribution
-        contribution.update(status: :failed)
+        contribution.update(status: 'failed')
       end
     when 'payment_intent.canceled'
       payment_intent = event.data.object
       contribution = Contribution.find_by(stripe_payment_intent_id: payment_intent.id)
       if contribution
-        contribution.update(status: :canceled)
+        contribution.update(status: 'canceled')
       end
     when 'payment_intent.processing'
       payment_intent = event.data.object
       # Payment is being processed
+    when 'payment_intent.requires_payment_method'
+      payment_intent = event.data.object
+      contribution = Contribution.find_by(stripe_payment_intent_id: payment_intent.id)
+      if contribution
+        # Payment intent requires a new payment method, likely expired or invalid
+        contribution.update(status: 'expired')
+      end
     when 'payment_intent.succeeded'
       payment_intent = event.data.object
       contribution = Contribution.find_by(stripe_payment_intent_id: payment_intent.id)
       if contribution
-        contribution.update(status: :succeeded, captured_at: Time.current)
+        # Only process if contribution hasn't already succeeded (prevent double-counting on webhook retries)
+        unless contribution.status == 'succeeded'
+          # Update contribution status
+          contribution.update(status: 'succeeded', captured_at: Time.current)
+          
+          # Update bill: recalculate paid_cents from succeeded contributions and update remaining_cents
+          Bill.transaction do
+            # Lock the bill to prevent race conditions
+            bill = Bill.lock.find(contribution.bill_id)
+            
+            # Recalculate paid_cents from sum of all succeeded contributions
+            bill.paid_cents = bill.contributions.where(status: 'succeeded').sum(:allocated_amount_cents)
+            
+            # Recalculate remaining_cents
+            bill.remaining_cents = bill.total_cents - bill.paid_cents
+            
+            # If remaining is 0, mark bill as paid
+            if bill.remaining_cents <= 0
+              bill.status = :paid
+              bill.remaining_cents = 0 # Ensure it's exactly 0
+            end
+            
+            bill.save!
+          end
+        end
       end
     else
       Rails.logger.info "Unhandled event type: #{event.type}"
