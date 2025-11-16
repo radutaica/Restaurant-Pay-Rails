@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  # Sidekiq Web UI (add authentication in production!)
+  require 'sidekiq/web'
+  mount Sidekiq::Web => '/sidekiq'
+  
   devise_for :users, path: '', path_names: {
     sign_in: 'login',
     sign_out: 'logout',

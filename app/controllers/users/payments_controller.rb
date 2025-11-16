@@ -17,6 +17,7 @@ class Users::PaymentsController < ApplicationController
     requested_amount_cents = params[:requested_amount_cents].to_i
     tip_cents = (params[:tip_cents] || 0).to_i
     kind = params[:kind] || 'custom' # split, custom, full
+    email = params[:email]&.strip.presence # Optional email for receipt
   
     if requested_amount_cents <= 0
       return render json: { error: 'Invalid requested amount' }, status: :bad_request
@@ -62,7 +63,8 @@ class Users::PaymentsController < ApplicationController
         currency: bill.currency || 'ron',
         status: 'reserved',
         kind: kind,
-        guest_session_id: get_session_id
+        guest_session_id: get_session_id,
+        email: email
       )
 
       # Create PaymentIntent with Stripe

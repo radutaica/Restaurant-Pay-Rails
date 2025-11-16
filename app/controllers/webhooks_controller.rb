@@ -93,6 +93,17 @@ class WebhooksController < ApplicationController
             
             bill.save!
           end
+          
+          # Send receipt email if email is provided (async via Sidekiq)
+          if contribution.email.present?
+            begin
+              ContributionReceiptMailer.receipt_email(contribution).deliver_later
+              Rails.logger.info "Receipt email queued for contribution #{contribution.id} to #{contribution.email}"
+            rescue => e
+              Rails.logger.error "Failed to queue receipt email for contribution #{contribution.id}: #{e.message}"
+              # Don't fail the webhook if email fails
+            end
+          end
         end
       end
     else
