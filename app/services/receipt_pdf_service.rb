@@ -15,6 +15,62 @@ class ReceiptPdfService
       margin: [40, 40, 40, 40]
     )
 
+    # Configure UTF-8 compatible font
+    # Use system font that supports UTF-8 (Romanian characters, etc.)
+    begin
+      # Try macOS Arial (regular) first
+      if File.exist?('/System/Library/Fonts/Supplemental/Arial.ttf')
+        pdf.font_families.update(
+          "Arial" => {
+            normal: '/System/Library/Fonts/Supplemental/Arial.ttf',
+            bold: '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
+            italic: '/System/Library/Fonts/Supplemental/Arial Italic.ttf',
+            bold_italic: '/System/Library/Fonts/Supplemental/Arial Bold Italic.ttf'
+          }
+        )
+        pdf.font "Arial"
+      # Try macOS Arial Unicode (best UTF-8 support)
+      elsif File.exist?('/System/Library/Fonts/Supplemental/Arial Unicode.ttf')
+        pdf.font_families.update(
+          "ArialUnicode" => {
+            normal: '/System/Library/Fonts/Supplemental/Arial Unicode.ttf',
+            bold: '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
+            italic: '/System/Library/Fonts/Supplemental/Arial Italic.ttf',
+            bold_italic: '/System/Library/Fonts/Supplemental/Arial Bold Italic.ttf'
+          }
+        )
+        pdf.font "ArialUnicode"
+      # Try Linux DejaVu font
+      elsif File.exist?('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf')
+        pdf.font_families.update(
+          "DejaVu" => {
+            normal: '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+            bold: '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+            italic: '/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf',
+            bold_italic: '/usr/share/fonts/truetype/dejavu/DejaVuSans-BoldOblique.ttf'
+          }
+        )
+        pdf.font "DejaVu"
+      # Try Windows Arial
+      elsif File.exist?('C:/Windows/Fonts/arial.ttf')
+        pdf.font_families.update(
+          "Arial" => {
+            normal: 'C:/Windows/Fonts/arial.ttf',
+            bold: 'C:/Windows/Fonts/arialbd.ttf',
+            italic: 'C:/Windows/Fonts/ariali.ttf',
+            bold_italic: 'C:/Windows/Fonts/arialbi.ttf'
+          }
+        )
+        pdf.font "Arial"
+      else
+        # Fallback: use default font and handle encoding manually
+        pdf.font "Helvetica"
+      end
+    rescue => e
+      Rails.logger.warn "Could not load UTF-8 font: #{e.message}. Using default font."
+      pdf.font "Helvetica"
+    end
+
     # Header
     pdf.text @venue.name, size: 24, style: :bold, align: :center
     pdf.move_down 5

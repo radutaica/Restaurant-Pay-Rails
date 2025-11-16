@@ -66,15 +66,24 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+    addressable (2.8.7)
+      public_suffix (>= 2.0.2, < 7.0)
+    base64 (0.3.0)
     bcrypt (3.1.20)
+    bigdecimal (3.3.1)
     bootsnap (1.17.0)
       msgpack (~> 1.2)
     builder (3.2.4)
     byebug (11.1.3)
+    childprocess (5.1.0)
+      logger (~> 1.5)
     chunky_png (1.4.0)
     coderay (1.1.3)
     concurrent-ruby (1.2.2)
+    connection_pool (2.5.4)
     crass (1.0.6)
+    css_parser (1.21.1)
+      addressable
     date (3.3.4)
     debug (1.8.0)
       irb (>= 1.5.0)
@@ -100,6 +109,7 @@ GEM
     erubi (1.12.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    htmlentities (4.3.4)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     io-console (0.6.0)
@@ -109,6 +119,13 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwt (2.7.1)
+    launchy (3.1.1)
+      addressable (~> 2.8)
+      childprocess (~> 5.0)
+      logger (~> 1.6)
+    letter_opener (1.10.0)
+      launchy (>= 2.2, < 4)
+    logger (1.7.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -118,6 +135,7 @@ GEM
       net-pop
       net-smtp
     marcel (1.0.2)
+    matrix (0.4.3)
     method_source (1.1.0)
     mini_mime (1.1.5)
     minitest (5.20.0)
@@ -137,7 +155,22 @@ GEM
     nokogiri (1.15.5-x86_64-linux)
       racc (~> 1.4)
     orm_adapter (0.5.0)
+    pdf-core (0.10.0)
     pg (1.5.4)
+    prawn (2.5.0)
+      matrix (~> 0.4)
+      pdf-core (~> 0.10.0)
+      ttfunk (~> 1.8)
+    prawn-table (0.2.2)
+      prawn (>= 1.3.0, < 3.0.0)
+    premailer (1.27.0)
+      addressable
+      css_parser (>= 1.19.0)
+      htmlentities (>= 4.0.0)
+    premailer-rails (1.12.0)
+      actionmailer (>= 3)
+      net-smtp
+      premailer (~> 1.7, >= 1.7.9)
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -148,6 +181,7 @@ GEM
       pry (>= 0.10.4)
     psych (5.1.1.1)
       stringio
+    public_suffix (6.0.2)
     puma (5.6.7)
       nio4r (~> 2.0)
     racc (1.7.3)
@@ -188,6 +222,8 @@ GEM
     rdoc (6.6.0)
       psych (>= 4.0.0)
     redis (4.8.1)
+    redis-client (0.26.1)
+      connection_pool
     reline (0.4.1)
       io-console (~> 0.5)
     responders (3.1.1)
@@ -197,10 +233,18 @@ GEM
       chunky_png (~> 1.0)
       rqrcode_core (~> 2.0)
     rqrcode_core (2.0.0)
+    sidekiq (7.3.9)
+      base64
+      connection_pool (>= 2.3.0)
+      logger
+      rack (>= 2.2.4)
+      redis-client (>= 0.22.2)
     stringio (3.1.0)
     stripe (13.0.0)
     thor (1.3.0)
     timeout (0.4.1)
+    ttfunk (1.8.0)
+      bigdecimal (~> 3.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     warden (1.2.9)
@@ -225,7 +269,11 @@ DEPENDENCIES
   devise
   devise-jwt
   jsonapi-serializer
+  letter_opener
   pg (~> 1.1)
+  prawn
+  prawn-table
+  premailer-rails
   pry (~> 0.14)
   pry-byebug
   pry-rails
@@ -234,6 +282,7 @@ DEPENDENCIES
   rails (~> 7.0.3, >= 7.0.3.1)
   redis (~> 4.0)
   rqrcode
+  sidekiq
   stripe
   tzinfo-data
 
