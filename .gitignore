@@ -44,3 +44,7 @@ config/ssl/
 *.env
 *.env.local
 *.env.*.local
+
+# Ignore Redis dump files
+dump.rdb
+*.rdb
