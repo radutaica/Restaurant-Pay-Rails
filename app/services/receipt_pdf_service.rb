@@ -191,14 +191,17 @@ class ReceiptPdfService
     pdf.fill_color 'F3F4F6'
     pdf.fill_rounded_rectangle [left, top], width, button_height, 8
     pdf.fill_color PRIMARY_TEXT
-    pdf.text_box 'Vezi detalii complete ->',
-                 at: [left, top - 10],
-                 width: width,
-                 height: button_height,
-                 align: :center,
-                 size: 10,
-                 style: :bold,
-                 valign: :center
+    draw_centered_text_box(
+      pdf,
+      'Vezi detalii complete ->',
+      x: left,
+      y: top - 6,
+      width: width,
+      height: button_height - 8,
+      size: 10,
+      style: :bold,
+      align: :center
+    )
     pdf.move_down button_height + 12
   end
 
@@ -249,13 +252,16 @@ class ReceiptPdfService
     pdf.fill_color 'E3ECFF'
     pdf.fill_rounded_rectangle [left, top], width, box_height, 12
     pdf.fill_color '1D4ED8'
-    pdf.text_box text,
-                 at: [left + 12, top - 14],
-                 width: width - 24,
-                 height: box_height - 12,
-                 size: 10,
-                 style: :bold,
-                 valign: :center
+    draw_centered_text_box(
+      pdf,
+      text,
+      x: left + 12,
+      y: top - 6,
+      width: width - 24,
+      height: box_height - 12,
+      size: 10,
+      style: :bold
+    )
     pdf.move_down box_height + 10
   end
 
@@ -268,13 +274,16 @@ class ReceiptPdfService
     pdf.fill_color background
     pdf.fill_rounded_rectangle [left, top], width, badge_height, 12
     pdf.fill_color text_color
-    pdf.text_box text,
-                 at: [left + 12, top - 12],
-                 width: width - 24,
-                 height: badge_height - 10,
-                 size: 10,
-                 style: :bold,
-                 valign: :center
+    draw_centered_text_box(
+      pdf,
+      text,
+      x: left + 12,
+      y: top - 6,
+      width: width - 24,
+      height: badge_height - 12,
+      size: 10,
+      style: :bold
+    )
     pdf.move_down badge_height + 6
   end
 
@@ -354,6 +363,18 @@ class ReceiptPdfService
     return @venue.contact_email if @venue.respond_to?(:contact_email) && @venue.contact_email.present?
 
     "contact@#{@venue.slug}.ro"
+  end
+
+  def draw_centered_text_box(pdf, text, x:, y:, width:, height:, **options)
+    Prawn::Text::Box.new(
+      text,
+      at: [x, y],
+      width: width,
+      height: height,
+      valign: :center,
+      document: pdf,
+      **options
+    ).render
   end
 
   def format_money(cents, currency = 'ron')
