@@ -12,13 +12,12 @@ class WebhooksController < ApplicationController
     
     payload = request.body.read
     sig_header = request.env['HTTP_STRIPE_SIGNATURE']
-    
     event = nil
 
     begin
-        event = Stripe::Webhook.construct_event(
-            payload, sig_header, endpoint_secret
-        )
+      event = Stripe::Webhook.construct_event(
+        payload, sig_header, endpoint_secret
+      )
     rescue JSON::ParserError => e
         # Invalid payload
         Rails.logger.error "Invalid JSON payload: #{e.message}"
@@ -29,7 +28,6 @@ class WebhooksController < ApplicationController
         return render json: { error: 'Invalid signature' }, status: :bad_request
     end
 
-    # Handle the event
     case event.type
     when 'payment_intent.created'
       payment_intent = event.data.object
@@ -112,19 +110,4 @@ class WebhooksController < ApplicationController
     
     render json: { received: true }, status: :ok
   end
-
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_webhook
-      @webhook = Webhook.find(params[:id])
-    end
-
-    def set_account_status(account_id, status)
-      User.find_by(account_id: account_id).change_status(status) if status == "active" || status == "pending"
-    end
-
-    # Only allow a list of trusted parameters through.
-    def webhook_params
-      params.fetch(:webhook, {})
-    end
 end
