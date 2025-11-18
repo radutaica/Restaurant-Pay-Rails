@@ -16,7 +16,10 @@ gem "puma", "~> 5.0"
 # gem "jbuilder"
 
 # Use Redis adapter to run Action Cable in production
-# gem "redis", "~> 4.0"
+gem "redis", "~> 4.0"
+
+# Background job processing
+gem 'sidekiq'
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
@@ -39,18 +42,36 @@ gem "rack-cors"
 gem 'devise'
 gem 'devise-jwt'
 gem 'jsonapi-serializer'
-gem 'pry', '~> 0.10.3'
+gem 'pry', '~> 0.14'
 gem 'stripe'
+gem 'rqrcode'
+
+# PDF generation (pure Ruby, no external dependencies)
+gem 'prawn'
+gem 'prawn-table'
+
+# Email styling (for better HTML email rendering)
+gem 'premailer-rails'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'pry-rails'
   gem 'pry-byebug'
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
+  
+  # Email preview in development
+  gem 'letter_opener'
 end
 
 group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
+end
+
+group :production do
+  # Email delivery service (choose one based on your preference)
+  # gem 'postmark-rails'  # Recommended for transactional emails
+  # gem 'sendgrid-ruby'   # Alternative option
+  # gem 'mailgun-ruby'    # Alternative option
 end
 

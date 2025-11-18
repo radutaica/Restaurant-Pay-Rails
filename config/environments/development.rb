@@ -1,10 +1,14 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
-  config.hosts << "0929-82-78-185-115.ngrok-free.app"
+  # Allow any ngrok subdomain
+  config.hosts << /.*\.ngrok-free\.app/
+  config.hosts << /.*\.ngrok\.io/
+  config.hosts << /.*\.ngrok\.app/
+  
   # Settings specified here will take precedence over those in config/application.rb.
   Rails.application.routes.default_url_options = {
-    host: 'https://0929-82-78-185-115.ngrok-free.app'
+    host: ENV['NGROK_HOST'] || 'localhost:3000'
   }
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -39,10 +43,17 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
-
+  # Email configuration
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.perform_deliveries = true
   config.action_mailer.perform_caching = false
+  
+  # Use letter_opener to open emails in browser during development
+  config.action_mailer.delivery_method = :letter_opener
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  
+  # Use Sidekiq for background jobs
+  config.active_job.queue_adapter = :sidekiq
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
