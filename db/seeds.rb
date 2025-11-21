@@ -8,20 +8,29 @@ puts "🧹 Clearing existing data..."
 ItemTableRelation.destroy_all
 Item.destroy_all
 Table.destroy_all
+Venue.destroy_all
+
+# Create Venue
+puts "🏢 Creating venue..."
+venue = Venue.create!(
+  name: "Restaurant Românesc",
+  slug: "restaurant-romanesc"
+)
+puts "✅ Created venue: #{venue.name}"
 
 # Create Tables
 puts "🪑 Creating tables..."
 tables = [
-  { name: "Masa 1 - La fereastră" },
-  { name: "Masa 2 - Centru" },
-  { name: "Masa 3 - Colț" },
-  { name: "Masa 4 - Terasă" },
-  { name: "Masa 5 - VIP" },
-  { name: "Masa 6 - Balcon" },
-  { name: "Masa 7 - Intimă" },
-  { name: "Masa 8 - Grup mare" },
-  { name: "Masa 9 - Bar" },
-  { name: "Masa 10 - Privată" }
+  { name: "Masa 1", venue: venue },
+  { name: "Masa 2 - Centru", venue: venue },
+  { name: "Masa 3 - Colț", venue: venue },
+  { name: "Masa 4 - Terasă", venue: venue },
+  { name: "Masa 5 - VIP", venue: venue },
+  { name: "Masa 6 - Balcon", venue: venue },
+  { name: "Masa 7 - Intimă", venue: venue },
+  { name: "Masa 8 - Grup mare", venue: venue },
+  { name: "Masa 9 - Bar", venue: venue },
+  { name: "Masa 10 - Privată", venue: venue }
 ]
 
 created_tables = tables.map { |table_data| Table.create!(table_data) }
@@ -31,61 +40,61 @@ puts "✅ Created #{created_tables.count} tables"
 puts "🍽️ Creating menu items..."
 items = [
   # Aperitive
-  { name: "Bruschete cu roșii și busuioc", price_cents: 2500 },
-  { name: "Platou de brânzeturi românești", price_cents: 3500 },
-  { name: "Salată de vinete", price_cents: 1800 },
-  { name: "Zacuscă de legume", price_cents: 2200 },
-  { name: "Pâine cu usturoi", price_cents: 1200 },
+  { name: "Bruschete cu roșii și busuioc", price_cents: 2500, venue: venue },
+  { name: "Platou de brânzeturi românești", price_cents: 3500, venue: venue },
+  { name: "Salată de vinete", price_cents: 1800, venue: venue },
+  { name: "Zacuscă de legume", price_cents: 2200, venue: venue },
+  { name: "Pâine cu usturoi", price_cents: 1200, venue: venue },
   
   # Supe și ciorbe
-  { name: "Ciorbă de burtă", price_cents: 2800 },
-  { name: "Ciorbă țărănească", price_cents: 2400 },
-  { name: "Supă de pui cu tăiței", price_cents: 2000 },
-  { name: "Ciorbă de legume", price_cents: 1800 },
+  { name: "Ciorbă de burtă", price_cents: 2800, venue: venue },
+  { name: "Ciorbă țărănească", price_cents: 2400, venue: venue },
+  { name: "Supă de pui cu tăiței", price_cents: 2000, venue: venue },
+  { name: "Ciorbă de legume", price_cents: 1800, venue: venue },
   
   # Feluri principale - Carne
-  { name: "Mici cu muștar și pâine", price_cents: 3200 },
-  { name: "Sarmale cu smântână", price_cents: 3500 },
-  { name: "Tochitură moldovenească", price_cents: 4200 },
-  { name: "Papanași cu smântână și dulceață", price_cents: 2800 },
-  { name: "Cozonac cu nucă", price_cents: 1500 },
-  { name: "Frigarui de porc", price_cents: 3800 },
-  { name: "Musaca de cartofi", price_cents: 3000 },
-  { name: "Ghiveci de legume", price_cents: 2600 },
+  { name: "Mici cu muștar și pâine", price_cents: 3200, venue: venue },
+  { name: "Sarmale cu smântână", price_cents: 3500, venue: venue },
+  { name: "Tochitură moldovenească", price_cents: 4200, venue: venue },
+  { name: "Papanași cu smântână și dulceață", price_cents: 2800, venue: venue },
+  { name: "Cozonac cu nucă", price_cents: 1500, venue: venue },
+  { name: "Frigarui de porc", price_cents: 3800, venue: venue },
+  { name: "Musaca de cartofi", price_cents: 3000, venue: venue },
+  { name: "Ghiveci de legume", price_cents: 2600, venue: venue },
   
   # Feluri principale - Pește
-  { name: "Pește la grătar cu legume", price_cents: 4500 },
-  { name: "Crap la cuptor cu usturoi", price_cents: 4000 },
-  { name: "Saramură de pește", price_cents: 3800 },
+  { name: "Pește la grătar cu legume", price_cents: 4500, venue: venue },
+  { name: "Crap la cuptor cu usturoi", price_cents: 4000, venue: venue },
+  { name: "Saramură de pește", price_cents: 3800, venue: venue },
   
   # Garnituri
-  { name: "Cartofi prăjiți", price_cents: 1500 },
-  { name: "Cartofi la cuptor", price_cents: 1800 },
-  { name: "Orez cu legume", price_cents: 1200 },
-  { name: "Salată de varză", price_cents: 1000 },
-  { name: "Salată de roșii și castraveți", price_cents: 1400 },
+  { name: "Cartofi prăjiți", price_cents: 1500, venue: venue },
+  { name: "Cartofi la cuptor", price_cents: 1800, venue: venue },
+  { name: "Orez cu legume", price_cents: 1200, venue: venue },
+  { name: "Salată de varză", price_cents: 1000, venue: venue },
+  { name: "Salată de roșii și castraveți", price_cents: 1400, venue: venue },
   
   # Deserturi
-  { name: "Clătite cu dulceață", price_cents: 2000 },
-  { name: "Plăcintă cu brânză", price_cents: 1800 },
-  { name: "Gogoașe cu gem", price_cents: 1200 },
-  { name: "Tort de ciocolată", price_cents: 2500 },
-  { name: "Înghețată cu fructe", price_cents: 1600 },
+  { name: "Clătite cu dulceață", price_cents: 2000, venue: venue },
+  { name: "Plăcintă cu brânză", price_cents: 1800, venue: venue },
+  { name: "Gogoașe cu gem", price_cents: 1200, venue: venue },
+  { name: "Tort de ciocolată", price_cents: 2500, venue: venue },
+  { name: "Înghețată cu fructe", price_cents: 1600, venue: venue },
   
   # Băuturi
-  { name: "Coca-Cola", price_cents: 800 },
-  { name: "Fanta", price_cents: 800 },
-  { name: "Sprite", price_cents: 800 },
-  { name: "Apă minerală", price_cents: 500 },
-  { name: "Suc de portocale", price_cents: 1200 },
-  { name: "Suc de mere", price_cents: 1200 },
-  { name: "Cafea", price_cents: 600 },
-  { name: "Ceai de mușețel", price_cents: 500 },
-  { name: "Limonadă", price_cents: 1000 },
-  { name: "Bere Ursus", price_cents: 1500 },
-  { name: "Vin roșu de casă", price_cents: 2500 },
-  { name: "Vin alb de casă", price_cents: 2500 },
-  { name: "Țuică", price_cents: 2000 }
+  { name: "Coca-Cola", price_cents: 800, venue: venue },
+  { name: "Fanta", price_cents: 800, venue: venue },
+  { name: "Sprite", price_cents: 800, venue: venue },
+  { name: "Apă minerală", price_cents: 500, venue: venue },
+  { name: "Suc de portocale", price_cents: 1200, venue: venue },
+  { name: "Suc de mere", price_cents: 1200, venue: venue },
+  { name: "Cafea", price_cents: 600, venue: venue },
+  { name: "Ceai de mușețel", price_cents: 500, venue: venue },
+  { name: "Limonadă", price_cents: 1000, venue: venue },
+  { name: "Bere Ursus", price_cents: 1500, venue: venue },
+  { name: "Vin roșu de casă", price_cents: 2500, venue: venue },
+  { name: "Vin alb de casă", price_cents: 2500, venue: venue },
+  { name: "Țuică", price_cents: 2000, venue: venue }
 ]
 
 created_items = items.map { |item_data| Item.create!(item_data) }

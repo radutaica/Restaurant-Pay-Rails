@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     #PAYMENTS
     post 'payment/create_payment' => 'payments#create_payment'
     post 'payment/pay_bill' => 'payments#pay_bill'
+    post 'payment/send_receipt' => 'payments#send_receipt'
     
     #ITEM_TABLE_RELATIONS
     get 'item_table_relations' => 'item_table_relations#index'

@@ -79,7 +79,7 @@ class QrGeneratorService
     if Rails.env.production?
       'https://m.plateste.app'
     else
-      'https://944e767af31d.ngrok-free.app'
+      'https://9e4aabb9d066.ngrok-free.app'
     end
   end
   

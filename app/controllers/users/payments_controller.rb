@@ -17,6 +17,7 @@ class Users::PaymentsController < ApplicationController
     requested_amount_cents = params[:requested_amount_cents].to_i
     tip_cents = (params[:tip_cents] || 0).to_i
     kind = params[:kind] || 'custom' # split, custom, full
+    payment_method = params[:payment_method]&.to_s&.strip.presence
     email = params[:email]&.strip.presence # Optional email for receipt
   
     if requested_amount_cents <= 0
@@ -64,7 +65,8 @@ class Users::PaymentsController < ApplicationController
         status: 'reserved',
         kind: kind,
         guest_session_id: get_session_id,
-        email: email
+        email: email,
+        payment_method: payment_method
       )
 
       # Create PaymentIntent with Stripe
@@ -108,6 +110,27 @@ class Users::PaymentsController < ApplicationController
   rescue => e
     Rails.logger.error "Error in create_payment: #{e.message}\n#{e.backtrace.join("\n")}"
     render json: { error: 'An error occurred while processing payment' }, status: :internal_server_error
+  end
+
+  def send_receipt
+    contribution = Contribution.find(params[:contribution_id])
+    email = params[:email]&.strip
+
+    if email.blank?
+      return render json: { error: 'Email is required' }, status: :bad_request
+    end
+
+    contribution.update!(email: email)
+    ContributionReceiptMailer.receipt_email(contribution).deliver_later
+
+    render json: { message: 'Receipt email has been queued for delivery' }, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Contribution not found' }, status: :not_found
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.join(', ') }, status: :unprocessable_entity
+  rescue => e
+    Rails.logger.error "Error sending receipt: #{e.message}\n#{e.backtrace.join("\n")}"
+    render json: { error: 'An error occurred while sending receipt' }, status: :internal_server_error
   end
 
   def pay_bill
