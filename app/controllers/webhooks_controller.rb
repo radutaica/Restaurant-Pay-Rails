@@ -73,6 +73,7 @@ class WebhooksController < ApplicationController
           contribution.update(status: 'succeeded', captured_at: Time.current)
           
           # Update bill: recalculate paid_cents from succeeded contributions and update remaining_cents
+          bill = nil
           Bill.transaction do
             # Lock the bill to prevent race conditions
             bill = Bill.lock.find(contribution.bill_id)
@@ -90,6 +91,21 @@ class WebhooksController < ApplicationController
             end
             
             bill.save!
+          end
+          
+          # Reload bill to get latest state
+          bill = Bill.find(contribution.bill_id) unless bill
+          
+          # Broadcast payment update via SSE
+          begin
+            PaymentBroadcastService.broadcast_payment_update(
+              bill_id: bill.id,
+              contribution: contribution,
+              bill: bill
+            )
+          rescue => e
+            Rails.logger.error "Failed to broadcast payment update: #{e.message}"
+            # Don't fail the webhook if broadcast fails
           end
           
           # Send receipt email if email is provided (async via Sidekiq)

@@ -4,8 +4,11 @@
 # the maximum value specified for Puma. Default is set to 5 threads for minimum
 # and maximum; this matches the default thread size of Active Record.
 #
-max_threads_count = ENV.fetch("RAILS_MAX_THREADS") { 5 }
-min_threads_count = ENV.fetch("RAILS_MIN_THREADS") { max_threads_count }
+# Increased thread count to handle SSE connections
+# Each SSE connection uses 1 thread, so we need more threads available
+# This allows multiple SSE connections while still having threads for regular requests
+max_threads_count = ENV.fetch("RAILS_MAX_THREADS") { 20 }
+min_threads_count = ENV.fetch("RAILS_MIN_THREADS") { 5 }
 threads min_threads_count, max_threads_count
 
 # Specifies the `worker_timeout` threshold that Puma will use to wait before
@@ -50,3 +53,11 @@ pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }
 
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
+
+# Handle shutdown signals gracefully even with long-running connections
+on_worker_shutdown do
+  Rails.logger.info "Puma worker shutting down..."
+end
+
+# Force shutdown after timeout (helps with Ctrl+C when SSE connections are active)
+force_shutdown_after 5 # seconds

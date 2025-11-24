@@ -79,7 +79,11 @@ class QrGeneratorService
     if Rails.env.production?
       'https://m.plateste.app'
     else
-      'https://9e4aabb9d066.ngrok-free.app'
+      # Use NGROK_HOST env variable or fallback to the current ngrok URL
+      ngrok_host = ENV['NGROK_HOST'] || 'e80c51930f1f.ngrok-free.app'
+      # Ensure it includes the protocol
+      ngrok_host = "https://#{ngrok_host}" unless ngrok_host.start_with?('http')
+      ngrok_host
     end
   end
   

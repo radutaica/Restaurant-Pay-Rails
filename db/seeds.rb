@@ -5,6 +5,10 @@ puts "🌱 Starting database seeding..."
 
 # Clear existing data
 puts "🧹 Clearing existing data..."
+# Delete in order to respect foreign key constraints
+BillLineItem.destroy_all
+Contribution.destroy_all
+Bill.destroy_all
 ItemTableRelation.destroy_all
 Item.destroy_all
 Table.destroy_all

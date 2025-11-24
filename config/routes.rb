@@ -25,6 +25,9 @@ Rails.application.routes.draw do
   get 'bills' => 'bills#show', as: :show_bill
   patch 'bills/update_tip' => 'bills#update_tip', as: :update_bill_tip
   
+  # Payment updates are now handled via ActionCable (PaymentUpdatesChannel)
+  # See app/channels/payment_updates_channel.rb
+  
   namespace :users do
     #PAYMENTS
     post 'payment/create_payment' => 'payments#create_payment'

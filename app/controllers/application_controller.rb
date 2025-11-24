@@ -28,9 +28,9 @@ class ApplicationController < ActionController::Base
       session_id = request.headers['X-Session-Token'] || request.headers['HTTP_X_SESSION_TOKEN']
     end
     
-    # Dacă încă nu există, încearcă din params
+    # Dacă încă nu există, încearcă din params (support both session_token and token)
     if session_id.blank?
-      session_id = params[:session_token]
+      session_id = params[:session_token] || params[:token]
     end
     
     session_id

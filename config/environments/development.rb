@@ -77,6 +77,7 @@ Rails.application.configure do
   # Annotate rendered view with file names.
   # config.action_view.annotate_rendered_view_with_filenames = true
 
-  # Uncomment if you wish to allow Action Cable access from any origin.
-  # config.action_cable.disable_request_forgery_protection = true
+  # Allow Action Cable access from any origin (needed for ngrok)
+  config.action_cable.disable_request_forgery_protection = true
+  config.action_cable.allowed_request_origins = [/.*\.ngrok-free\.app/, /.*\.ngrok\.io/, /.*\.ngrok\.app/, 'http://localhost:3000', 'http://localhost:3001']
 end
